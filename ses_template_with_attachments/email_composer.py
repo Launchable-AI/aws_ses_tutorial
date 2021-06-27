@@ -28,7 +28,7 @@ class Email:
         # You can set sender here manually, or pull it out of event
         # self.sender = your-address@your-domain.com
         self.SUBJECT = self.event['subject']
-        self.SENDER = self.event[]
+        self.SENDER = self.event['sender']
         self.RECIPIENT = self.event['to']
 
         # The AWS configuration set used to track mails
