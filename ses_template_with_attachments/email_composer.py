@@ -39,15 +39,15 @@ class Email:
         '''
         self.attachment_filepaths = []
 
-        if 'parsed_files' in self.event.keys():
+        if 'files' in self.event.keys():
             s3 = boto3.client('s3')
-            for fpath in self.event['parsed_files']:
+            for fpath in self.event['files']:
                 outpath = f'/tmp/{Path(fpath).name}'
                 bucket = 'YOUR-S3-BUCKET-NAME-HERE'
                 s3.download_file(bucket, fpath, outpath)
                 self.attachment_filepaths.append(outpath)
 
-        print("Parsed filepaths to be used:")
+        print("Filepaths to be used:")
         print(self.attachment_filepaths)
 
     def attach_files(self):
