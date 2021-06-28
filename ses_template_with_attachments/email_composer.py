@@ -27,23 +27,24 @@ class Email:
 
         # You can set sender here manually, or pull it out of event
         # self.sender = your-address@your-domain.com
-        self.SUBJECT = self.event['subject']
-        self.SENDER = self.event['sender']
-        self.RECIPIENT = self.event['to']
+        self.SUBJECT = self.event['queryStringParameters']['subject']
+        self.SENDER = self.event['queryStringParameters']['sender']
+        self.RECIPIENT = self.event['queryStringParameters']['to']
 
         # The AWS configuration set used to track mails
-        self.CONFIGURATION_SET = "default"
+        # self.CONFIGURATION_SET = "default"
 
     def download_files(self):
         ''' Dowload attachment files from s3
         '''
         self.attachment_filepaths = []
 
-        if 'files' in self.event.keys():
+        if 'files' in self.event['queryStringParameters'].keys():
             s3 = boto3.client('s3')
-            for fpath in self.event['files']:
+            for fpath in self.event['queryStringParameters']['files']:
+                print(fpath)
                 outpath = f'/tmp/{Path(fpath).name}'
-                bucket = 'YOUR-S3-BUCKET-NAME-HERE'
+                bucket = 'launchable-ses-demo'
                 s3.download_file(bucket, fpath, outpath)
                 self.attachment_filepaths.append(outpath)
 
@@ -57,7 +58,7 @@ class Email:
             # Define the attachment part and encode it using MIMEApplication.
             att = MIMEApplication(open(fpath, 'rb').read())
             # Add a header to tell the email client to treat this part as an attachment, and give the attachment a name.
-            att_title = f'SET-FILE-TITLE-HERE.ext'
+            att_title = Path(fpath).name
             att.add_header('Content-Disposition','attachment',filename=att_title)
             # Add the attachment to the parent container.
             self.msg.attach(att)
@@ -70,7 +71,7 @@ class Email:
         self.BODY_HTML = f"""\
                 <body>ENTER HTML BODY HERE</body>
         """
-        # e.g., f'<body>event["body"]</body>'
+        # e.g., f'<body>{event["body"]}</body>'
 
     def gen_text_body(self):
         ''' Compose the text body piece of the email
@@ -116,7 +117,6 @@ class Email:
         ''' Convenience function to call all of the needed functions to generate the email
         '''
         self.set_sender_receiver_subject()
-        self.set_titles_block()
         self.gen_html_body()
         self.gen_text_body()
         self.download_files()
@@ -137,7 +137,7 @@ class Email:
                 RawMessage={
                     'Data':self.msg.as_string(),
                 },
-                ConfigurationSetName=self.CONFIGURATION_SET
+                #ConfigurationSetName=self.CONFIGURATION_SET
             )
 
         except Exception as e:
