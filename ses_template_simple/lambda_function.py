@@ -84,6 +84,8 @@ def lambda_handler(event, context):
         print(response['MessageId'])
         
     return {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+            "isBase64Encoded": False,
+            "statusCode": 200,
+            "headers": {"Content-Type": "application/json"}
+            "body": json.dumps("Hello from Lambda!")
     }

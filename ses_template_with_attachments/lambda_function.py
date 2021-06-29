@@ -22,10 +22,12 @@ def lambda_handler(event, context):
         email.generator_wrapper()
         email.send_email()
 
-        return {
-            'StatusCode': 200,
-            'body': json.dumps('Hello from Lambda!')
-        }
+    return {
+            "isBase64Encoded": False,
+            "statusCode": 200,
+            "headers": {"Content-Type": "application/json"}
+            "body": json.dumps("Hello from Lambda!")
+            }
 
 
     except Exception as e:
